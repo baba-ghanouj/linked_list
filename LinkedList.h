@@ -32,7 +32,7 @@ void PrintForwardRecursive(const Node* node) const;
 void PrintReverseRecursive(const Node* node) const;
 
 // Accessors
-unsigned int NodeCount() const;
+unsigned int NodeCount() const;                                 // Returns _size
 void FindAll(vector<Node*>& outData, const T& value) const;
 const Node* Find(const T& data) const;
 Node* Find(const T& data);
@@ -70,9 +70,13 @@ LinkedList<T>& operator=(const LinkedList<T>& rhs);             // Copy assignme
 template <typename T>
 struct LinkedList<T>::Node
 {
-    T _data;                                                   // Data stored in the node
+    T _data;                                                    // Data stored in the node
     Node* _next;                                                // Pointer to next node in linked list
     Node* _previous;                                            // Pointer to previous node in linked list
+
+    // Constructors
+    Node();                                                     // Default constructor
+    Node(const T& data);                                        // Constructor with _data assignment
 };
 
 template <typename T>
@@ -87,10 +91,9 @@ template <typename T>
 LinkedList<T>::~LinkedList()
 {
     Node* current_node = _head;
-
-    while (current_node != nullptr)
+    while (current_node != nullptr)         // _next member variable of last pointer in a linked list should always be null
     {
-        Node* next = current_node->_next;
+        Node* next = current_node->_next;   // Summon the next node before deallocating the current node
         delete current_node;
         current_node = next;
     }
@@ -99,35 +102,32 @@ LinkedList<T>::~LinkedList()
 template <typename T>
 void LinkedList<T>::PrintForward() const
 {
-    Node* current_item = _head;
+    Node* current_node = _head;                             // Use pointer to quickly iterate through list items
     for (unsigned int item = 0; item < _size; item++)
     {
-        cout << current_item->_data << endl;
-        current_item = current_item->_next;
+        cout << current_node->_data << endl;
+        current_node = current_node->_next;                 // Set the current node to the previous node for next loop
     }
 }
 
 template <typename T>
 void LinkedList<T>::PrintReverse() const
 {
-    Node* current_item = _tail;
+    Node* current_node = _tail;                             // Use pointer to quickly iterate through list items
     for (unsigned int item = 0; item < _size; item++)
     {
-        cout << current_item->_data << endl;
-        current_item = current_item->_previous;
+        cout << current_node->_data << endl;
+        current_node = current_node->_previous;             // Set the current node to the previous node for next loop
     }
 }
 
 template <typename T>
 void LinkedList<T>::AddHead(const T& data)
 {
-    Node* new_head = new Node();          // New node to be added to front of list
-    new_head->_data = data;
-
-    // Check to see if list is empty
-    if (_head == nullptr)
+    Node* new_head = new Node(data);    // New node to be added to front of list
+    if (_head == nullptr)               // Check to see if list is empty
     {
-        // If list was previously empty, list now has a size of 1 and thus _head and _tail are the same
+        // If list was previously empty, list now has a size of 1 and thus _head and _tail are the same node
         _head = new_head;
         _tail = new_head;
         _size = 1;
@@ -145,13 +145,10 @@ void LinkedList<T>::AddHead(const T& data)
 template <typename T>
 void LinkedList<T>::AddTail(const T& data)
 {
-    Node* new_tail = new Node();          // New node to be added to end of list
-    new_tail->_data = data;
-
-    // Check to see if list is empty
-    if (_head == nullptr)
+    Node* new_tail = new Node(data);    // New node to be added at end of list
+    if (_head == nullptr)               // Check to see if list is empty
     {
-        // If list was previously empty, list now has a size of 1 and thus _tail and _head are the same
+        // If list was previously empty, list now has a size of 1 and thus _tail and _head are the same node
         _tail = new_tail;
         _head = new_tail;
         _size = 1;
@@ -171,7 +168,7 @@ void LinkedList<T>::AddNodesHead(const T* data, unsigned int count)
 {
     for (unsigned int i = 0; i < count; i++)
     {
-        AddHead(data[count - i - 1]);
+        AddHead(data[count - i - 1]);   // To preserve the order of the array, start by adding the nth element and counting down
     }
 }
 
@@ -190,6 +187,20 @@ unsigned int LinkedList<T>::NodeCount() const
     return _size;
 }
 
+template <typename T>
+LinkedList<T>::Node::Node()
+{
+    _next = nullptr;
+    _previous = nullptr;
+    _data = T();
+}
 
+template <typename T>
+LinkedList<T>::Node::Node(const T& data)
+{
+    _next = nullptr;
+    _previous = nullptr;
+    _data = data;
+}
 
 
