@@ -11,15 +11,9 @@ using std::endl;
 template <typename T>
 class LinkedList
 {
-private:
+public:
     struct Node;                                                // Declaration of nested Node struct
 
-// Member variables
-Node* _head;                                                    // Pointer to first node in linked list
-Node* _tail;                                                    // Pointer to last node in linked list
-unsigned int _size;                                             // Number of nodes in linked list
-
-public:
 // Construction / destruction
 LinkedList();                                                   // Default constructor
 LinkedList(const LinkedList<T>& list);                          // Copy constructor
@@ -38,10 +32,10 @@ const Node* Find(const T& data) const;
 Node* Find(const T& data);
 const Node* GetNode (unsigned int index) const;
 Node* GetNode(unsigned int index);
-Node* Head();
-const Node* Head() const;
-Node* Tail();
-const Node* Tail() const;
+Node* Head();                                                   // Returns _head
+const Node* Head() const;                                       // Returns _head
+Node* Tail();                                                   // Returns _tail
+const Node* Tail() const;                                       // Returns _tail
 
 // Insertion 
 void AddHead(const T& data);                                    // Create new node at front of list
@@ -60,10 +54,16 @@ bool RemoveAt (unsigned int index);
 void Clear();
 
 // Operators
-const T& operator[](unsigned int index) const;
-T& operator[](unsigned int index);
+const T& operator[](unsigned int index) const;                  // Subscript operator
+T& operator[](unsigned int index);                              // Subscript operator
 bool operator==(const LinkedList<T>& rhs) const;
 LinkedList<T>& operator=(const LinkedList<T>& rhs);             // Copy assignment operator
+
+private:
+// Member variables
+Node* _head;                                                    // Pointer to first node in linked list
+Node* _tail;                                                    // Pointer to last node in linked list
+unsigned int _size;                                             // Number of nodes in linked list
 };
 
 // Definition of nested Node struct
@@ -188,6 +188,123 @@ unsigned int LinkedList<T>::NodeCount() const
 }
 
 template <typename T>
+const typename LinkedList<T>::Node* LinkedList<T>::Find(const T& data) const
+{
+    for (unsigned int node_num = 0; node_num < _size; node_num++)
+        {
+            Node* current_node = GetNode(node_num);
+            T node_data = current_node->_data;
+            if (node_data == data)
+            {
+                return current_node;
+            }
+        }
+    return nullptr;
+}
+
+template <typename T>
+typename LinkedList<T>::Node* LinkedList<T>::Find(const T& data)
+{
+    for (unsigned int node_num = 0; node_num < _size; node_num++)
+        {
+            Node* current_node = GetNode(node_num);
+            T node_data = current_node->_data;
+            if (node_data == data)
+            {
+                return current_node;
+            }
+        }
+    return nullptr;
+}
+
+template <typename T>
+const typename LinkedList<T>::Node* LinkedList<T>::GetNode (unsigned int index) const
+{
+    if (index == 0)
+    {
+        if (_head == nullptr)
+        {
+            throw std::out_of_range("Error: Index out of range.");
+        }
+        return _head;
+    }
+    Node* current_node = _head;
+    for (unsigned int node = 0; node < index; node++)
+    {
+        current_node = current_node->_next;
+        if (current_node == nullptr)
+        {
+            throw std::out_of_range("Error: Index out of range.");
+        }
+    }
+
+    return current_node;    
+}
+
+template <typename T>
+typename LinkedList<T>::Node* LinkedList<T>::GetNode(unsigned int index)
+{
+    if (index == 0)
+    {
+        if (_head == nullptr)
+        {
+            throw std::out_of_range("Error: Index out of range.");
+        }
+        return _head;
+    }
+    Node* current_node = _head;
+    for (unsigned int node = 0; node < index; node++)
+    {
+        current_node = current_node->_next;
+        if (current_node == nullptr)
+        {
+            throw std::out_of_range("Error: Index out of range.");
+        }
+    }
+
+    return current_node;    
+}
+
+
+template <typename T>
+typename LinkedList<T>::Node* LinkedList<T>::Head()
+{
+    return _head;
+}
+
+template <typename T>
+const typename LinkedList<T>::Node* LinkedList<T>::Head() const
+{
+    return _head;
+}
+
+template <typename T>
+typename LinkedList<T>::Node* LinkedList<T>::Tail()
+{
+    return _tail;
+}
+
+template <typename T>
+const typename LinkedList<T>::Node* LinkedList<T>::Tail() const
+{
+    return _tail;
+}
+
+template <typename T>
+const T& LinkedList<T>::operator[](unsigned int index) const
+{
+    return GetNode(index);
+}
+
+template <typename T>
+T& LinkedList<T>::operator[](unsigned int index)
+{
+    return GetNode(index);
+}
+
+
+
+template <typename T>
 LinkedList<T>::Node::Node()
 {
     _next = nullptr;
@@ -202,5 +319,7 @@ LinkedList<T>::Node::Node(const T& data)
     _previous = nullptr;
     _data = data;
 }
+
+
 
 
