@@ -56,7 +56,7 @@ void Clear();
 // Operators
 const T& operator[](unsigned int index) const;                  // Subscript operator
 T& operator[](unsigned int index);                              // Subscript operator
-bool operator==(const LinkedList<T>& rhs) const;
+bool operator==(const LinkedList<T>& rhs) const;                // Equality operator
 LinkedList<T>& operator=(const LinkedList<T>& rhs);             // Copy assignment operator
 
 private:
@@ -217,11 +217,24 @@ void LinkedList<T>::InsertBefore(Node* node, const T& data)
 template <typename T>
 void LinkedList<T>::InsertAt(const T& data, unsigned int index)
 {
-    Node* node = GetNode(index);
-    cout << "data at current node: " << node->data << endl;
-    InsertAfter(node, data);
+    if (index > _size or index < 0)
+    {
+        throw std::out_of_range("Error: Index out of range.");
+    }
+    else if (index == 0)
+    {
+        AddHead(data);
+    }
+    else if (index == _size)
+    {
+        AddTail(data);
+    }
+    else
+    {
+        Node* node = GetNode(index);
+        InsertBefore(node, data);
+    }
 }
-
 
 template <typename T>
 unsigned int LinkedList<T>::NodeCount() const
@@ -393,6 +406,30 @@ T& LinkedList<T>::operator[](unsigned int index)
 
     return current_node->data;    
 }
+
+template <typename T>
+bool LinkedList<T>::operator==(const LinkedList<T>& rhs) const
+{
+    if (_size != rhs._size)
+    {
+        return false;
+    }
+
+    Node* lhs_node = _head;
+    Node* rhs_node = rhs._head;
+    for (unsigned int node = 0; node < _size; node++)
+    {
+        if (lhs_node->data != rhs_node->data)
+        {
+            return false;
+        }
+        lhs_node = lhs_node->next;
+        rhs_node = rhs_node->next;
+
+    }
+    return true;
+}
+
 
 template <typename T>
 LinkedList<T>& LinkedList<T>::operator=(const LinkedList<T>& rhs)
