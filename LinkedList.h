@@ -16,7 +16,7 @@ public:
 
 // Construction / destruction
 LinkedList();                                                   // Default constructor
-LinkedList(const LinkedList<T>& list);                          // IMPLEMENT Copy constructor
+LinkedList(const LinkedList<T>& list);                          // Copy constructor
 ~LinkedList();                                                  // Destructor
 
 // Behaviors
@@ -27,7 +27,7 @@ void PrintReverseRecursive(const Node* node) const;
 
 // Accessors
 unsigned int NodeCount() const;                                 // Returns _size
-void FindAll(vector<Node*>& outData, const T& value) const;
+void FindAll(vector<Node*>& outData, const T& value) const;     // Returns a vector with all nodes containing value
 const Node* Find(const T& data) const;                          // Returns pointer to first node with specified data
 Node* Find(const T& data);                                      // Returns pointer to first node with specified data
 const Node* GetNode (unsigned int index) const;                 // Returns the nth node in the list
@@ -57,7 +57,7 @@ void Clear();
 const T& operator[](unsigned int index) const;                  // Subscript operator
 T& operator[](unsigned int index);                              // Subscript operator
 bool operator==(const LinkedList<T>& rhs) const;
-LinkedList<T>& operator=(const LinkedList<T>& rhs);             // IMPLEMENT Copy assignment operator
+LinkedList<T>& operator=(const LinkedList<T>& rhs);             // Copy assignment operator
 
 private:
 // Member variables
@@ -74,8 +74,8 @@ template <typename T>
 struct LinkedList<T>::Node
 {
     T data;                                                     // Data stored in the node
-    Node* next;                                                // Pointer to next node in linked list
-    Node* prev;                                            // Pointer to previous node in linked list
+    Node* next;                                                 // Pointer to next node in linked list
+    Node* prev;                                                 // Pointer to previous node in linked list
 
     // Constructors
     Node();                                                     // Default constructor
@@ -95,7 +95,6 @@ LinkedList<T>::LinkedList(const LinkedList<T>& list)
 {
     copy_from_object(list);
 }
-
 
 template <typename T>
 LinkedList<T>::~LinkedList()
@@ -192,6 +191,39 @@ void LinkedList<T>::AddNodesTail(const T* data, unsigned int count)
 }
 
 template <typename T>
+void LinkedList<T>::InsertAfter(Node* node, const T& data)
+{  
+    Node* new_node = new Node(data);
+    new_node->prev = node;
+    new_node->next = node->next;
+    node->next->prev = new_node;
+    node->next = new_node;
+    
+    _size++;
+}
+
+template <typename T>
+void LinkedList<T>::InsertBefore(Node* node, const T& data)
+{
+    Node* new_node = new Node(data);
+    new_node->next = node;
+    new_node->prev = node->prev;
+    node->prev->next = new_node;
+    node->prev = new_node;
+
+    _size++;
+}
+
+template <typename T>
+void LinkedList<T>::InsertAt(const T& data, unsigned int index)
+{
+    Node* node = GetNode(index);
+    cout << "data at current node: " << node->data << endl;
+    InsertAfter(node, data);
+}
+
+
+template <typename T>
 unsigned int LinkedList<T>::NodeCount() const
 {
     return _size;
@@ -216,30 +248,30 @@ template <typename T>
 const typename LinkedList<T>::Node* LinkedList<T>::Find(const T& data) const
 {
     Node* current_node = _head;
-    for (unsigned int node_num = 0; node_num < _size; node_num++)
+    while (current_node != nullptr)
+    {
+        if (current_node->data == data)
         {
-            T node_data = current_node->data;
-            if (node_data == data)
-            {
-                return current_node;
-            }
+            return current_node;
         }
-    return nullptr;
+        current_node = current_node->next;
+    }
+    return current_node;
 }
 
 template <typename T>
 typename LinkedList<T>::Node* LinkedList<T>::Find(const T& data)
 {
     Node* current_node = _head;
-    for (unsigned int node_num = 0; node_num < _size; node_num++)
+    while (current_node != nullptr)
+    {
+        if (current_node->data == data)
         {
-            T node_data = current_node->data;
-            if (node_data == data)
-            {
-                return current_node;
-            }
+            return current_node;
         }
-    return nullptr;
+        current_node = current_node->next;
+    }
+    return current_node;
 }
 
 template <typename T>
@@ -289,7 +321,6 @@ typename LinkedList<T>::Node* LinkedList<T>::GetNode(unsigned int index)
 
     return current_node;    
 }
-
 
 template <typename T>
 typename LinkedList<T>::Node* LinkedList<T>::Head()
@@ -366,7 +397,7 @@ T& LinkedList<T>::operator[](unsigned int index)
 template <typename T>
 LinkedList<T>& LinkedList<T>::operator=(const LinkedList<T>& rhs)
 {
-    delete this;
+    this->~LinkedList();
     copy_from_object(rhs);
 
     return *this;
@@ -391,12 +422,15 @@ LinkedList<T>::Node::Node(const T& data)
 template <typename T>
 void LinkedList<T>::copy_from_object(const LinkedList<T>& object)
 {    
-    cout << "copy_from_object called" << endl;
-    Node current_node = *object._head;
-    cout << "starting loop with original object location " << &object._head << " copy at " << &current_node << endl;
-    while (current_node.next != nullptr)
+    Node* current_node = object._head;
+    T new_data = current_node->data;
+    _head = nullptr;
+    _tail = nullptr;
+    while (current_node != nullptr)
     {
-        AddTail(current_node);
-        current_node = current_node.next;
+        new_data = current_node->data;
+        AddTail(new_data);
+        current_node = current_node->next;
     }
 }
+
