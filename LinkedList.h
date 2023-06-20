@@ -7,7 +7,7 @@ using std::vector;
 using std::cout;
 using std::endl;
 
-// Definition of doubly-linked list class
+// Doubly-linked list
 template <typename T>
 class LinkedList
 {
@@ -30,7 +30,7 @@ unsigned int NodeCount() const;                                 // Returns _size
 void FindAll(vector<Node*>& outData, const T& value) const;     // Returns a vector with all nodes containing value
 const Node* Find(const T& data) const;                          // Returns pointer to first node with specified data
 Node* Find(const T& data);                                      // Returns pointer to first node with specified data
-const Node* GetNode (unsigned int index) const;                 // Returns the nth node in the list
+const Node* GetNode(unsigned int index) const;                  // Returns the nth node in the list
 Node* GetNode(unsigned int index);                              // Returns the nth node in the list
 Node* Head();                                                   // Returns _head
 const Node* Head() const;                                       // Returns _head
@@ -42,16 +42,16 @@ void AddHead(const T& data);                                    // Create new no
 void AddTail(const T& data);                                    // Create new node at end of list
 void AddNodesHead(const T* data, unsigned int count);           // Given array, progressively link nodes
 void AddNodesTail(const T* data, unsigned int count);           // Given array, regressively link nodes
-void InsertAfter(Node* node, const T& data); 
-void InsertBefore(Node* node, const T& data);
-void InsertAt(const T& data, unsigned int index);
+void InsertAfter(Node* node, const T& data);                    // Insert node after specified node
+void InsertBefore(Node* node, const T& data);                   // Insert node before specified node
+void InsertAt(const T& data, unsigned int index);               // Insert node at given index
 
 // Removal  
-bool RemoveHead();
-bool RemoveTail();
-unsigned int Remove (const T&data);
-bool RemoveAt (unsigned int index);
-void Clear();
+bool RemoveHead();                                              // Delete current head from list
+bool RemoveTail();                                              // Delete current list from list
+unsigned int Remove(const T&data);                              // Delete all nodes containing data
+bool RemoveAt(unsigned int index);                              // Delete node at index
+void Clear();                                                   // Delete all nodes in list
 
 // Operators
 const T& operator[](unsigned int index) const;                  // Subscript operator
@@ -67,9 +67,10 @@ unsigned int _size;                                             // Number of nod
 
 // Private behaviors
 void copy_from_object(const LinkedList<T>& object);             // Helper function for copy assignment and copy constructor
+void remove_node(Node* node);                                   // Helper function for Remove and RemoveAAt
 };
 
-// Definition of nested Node struct
+// Nested Node struct for LinkedList class
 template <typename T>
 struct LinkedList<T>::Node
 {
@@ -131,6 +132,28 @@ void LinkedList<T>::PrintReverse() const
 }
 
 template <typename T>
+void LinkedList<T>::PrintForwardRecursive(const Node* node) const
+{
+    if(node != nullptr)
+    {
+        cout << node->data << endl;
+        node = node->next;
+        PrintForwardRecursive(node);
+    }
+}
+
+template <typename T>
+void LinkedList<T>::PrintReverseRecursive(const Node* node) const
+{
+    if(node != nullptr)
+    {
+        cout << node->data << endl;
+        node = node->prev;
+        PrintReverseRecursive(node);
+    }
+}
+
+template <typename T>
 void LinkedList<T>::AddHead(const T& data)
 {
     Node* new_head = new Node(data);    // New node to be added to front of list
@@ -143,10 +166,10 @@ void LinkedList<T>::AddHead(const T& data)
     }
     else 
     {
-        _head->prev = new_head;    // Inform node currently at front of list that a new node will be inserted in front of it
-        new_head->next = _head;        // Set new_head to point to current front of list
+        _head->prev = new_head;         // Inform node currently at front of list that a new node will be inserted in front of it
+        new_head->next = _head;         // Set new_head to point to current front of list
         _head = new_head;               // Set list to begin with new_head
-        new_head->prev = nullptr;  // Since new_head is now at front of list, nothing comes before it
+        new_head->prev = nullptr;       // Since new_head is now at front of list, nothing comes before it
         _size++;                        // Increment size of linked list
     }
 }
@@ -164,10 +187,10 @@ void LinkedList<T>::AddTail(const T& data)
     }
     else 
     {
-        _tail->next = new_tail;        // Inform node currently at end of list that a new node will be inserted behind it
-        new_tail->prev = _tail;    // Set new_tail to point to current end of list
+        _tail->next = new_tail;         // Inform node currently at end of list that a new node will be inserted behind it
+        new_tail->prev = _tail;         // Set new_tail to point to current end of list
         _tail = new_tail;               // Set list to end with new_tail
-        new_tail->next = nullptr;      // Since new_tail is now at end of list, nothing comes before it
+        new_tail->next = nullptr;       // Since new_tail is now at end of list, nothing comes before it
         _size++;                        // Increment size of linked list
     }
 }
@@ -235,6 +258,113 @@ void LinkedList<T>::InsertAt(const T& data, unsigned int index)
         InsertBefore(node, data);
     }
 }
+
+template <typename T>
+bool LinkedList<T>::RemoveHead()
+{
+    if (_head == nullptr)
+    {
+        // cout << "Could not remove size: " << _size << endl;
+        return false;
+    }
+    else if (_head->next == nullptr)
+    {
+        delete _head;
+        _head = nullptr;
+    }
+    else
+    {    
+    Node* new_head = _head->next;
+    new_head->prev = nullptr;
+    delete _head;
+    _head = new_head;
+    }
+    _size--;
+    // cout << "Head removed!" << endl;
+    // cout << "New size:" << _size << endl;
+    return true;
+}
+
+template <typename T>
+bool LinkedList<T>::RemoveTail()
+{
+    // cout << "Starting tail location in memory: " << _tail << endl;
+    if (_tail == nullptr)
+    {
+        // cout << "Could not remove size: " << _size << endl;
+        return false;
+    }
+    else if (_tail->prev == nullptr)
+    {
+        // cout << "_tail: " << _tail << " ->prev " << _tail->prev << " ->prev->prev " << _tail->prev->prev << endl;
+        // cout << "Deleted tail at: " << _tail << endl;
+        _tail = nullptr;
+    }
+    else
+    {
+    Node* new_tail = _tail->prev;
+    new_tail->next = nullptr;
+    // cout << "new_tail: " << new_tail << " ->prev: " << new_tail->prev << " ->next: " << new_tail->next << endl;
+    // cout << "_tail: " << _tail << " ->prev " << _tail->prev << " ->prev->prev " << _tail->prev->prev << endl;
+    delete _tail;
+    _tail = new_tail;
+    }
+    _size--;
+    // cout << "Tail removed!" << endl;
+    // cout << "New size:" << _size << endl;
+    return true;
+}
+
+template <typename T>
+unsigned int LinkedList<T>::Remove(const T&data)
+{
+    vector<LinkedList<T>::Node*> nodes;
+    FindAll(nodes, data);
+
+    for (unsigned int node = 0; node < nodes.size(); node++)
+    {
+        Node* current_node = nodes[node];
+        if (current_node->prev == nullptr)
+        {
+            RemoveHead();
+        }
+        else if (current_node->next == nullptr)
+        {
+            RemoveTail();
+        }
+        else
+        {
+            remove_node(current_node);
+        }
+    }
+    return nodes.size();
+}
+
+template <typename T>
+bool LinkedList<T>::RemoveAt(unsigned int index)
+{
+    try
+    {
+        Node* node = GetNode(index);
+        remove_node(node);
+        return true;
+    }
+    catch(const std::exception& e)
+    {
+        std::cerr << e.what() << '\n';
+        return false;
+    }
+}
+
+template <typename T> void 
+LinkedList<T>::Clear()
+{
+    _size = 0;
+    this->~LinkedList();
+    _head = nullptr;
+    _tail = nullptr;
+}
+
 
 template <typename T>
 unsigned int LinkedList<T>::NodeCount() const
@@ -430,7 +560,6 @@ bool LinkedList<T>::operator==(const LinkedList<T>& rhs) const
     return true;
 }
 
-
 template <typename T>
 LinkedList<T>& LinkedList<T>::operator=(const LinkedList<T>& rhs)
 {
@@ -471,3 +600,11 @@ void LinkedList<T>::copy_from_object(const LinkedList<T>& object)
     }
 }
 
+template <typename T>
+void LinkedList<T>::remove_node(Node* node)
+{
+    node->prev->next = node->next;
+    node->next->prev = node->prev;
+    delete node;
+    _size--;
+}
