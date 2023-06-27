@@ -271,6 +271,7 @@ bool LinkedList<T>::RemoveHead()
     {
         delete _head;
         _head = nullptr;
+        _tail = nullptr;
     }
     else
     {    
@@ -297,7 +298,9 @@ bool LinkedList<T>::RemoveTail()
     else if (_tail->prev == nullptr)
     {
         // cout << "_tail: " << _tail << " ->prev " << _tail->prev << " ->prev->prev " << _tail->prev->prev << endl;
-        // cout << "Deleted tail at: " << _tail << endl;
+        // cout << "Deleted data: " << _tail << endl;
+       delete _tail;
+        _head = nullptr;
         _tail = nullptr;
     }
     else
